@@ -1,0 +1,40 @@
+﻿<Window x:Class="PicAxe.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PicAxe"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    
+   
+    <Grid Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="20*"/>
+            <ColumnDefinition Width="5*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="20*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.RowSpan="2" Grid.ColumnSpan="3" Background="#2f3040"></Border>
+        <Image Grid.Column="1" Grid.Row="1" Name="mainImage" Source="C:\Users\ivani\Pictures\1984.jpg"></Image>
+        <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+            <Menu DockPanel.Dock="Top"  Background="#323232" Foreground="AliceBlue">
+                <MenuItem Header="_File" BorderThickness="0">
+                    <MenuItem Header="_New" Foreground="Black" />
+                    <MenuItem Header="_Open" Click="Open_Click" Foreground="Black"/>
+                    <MenuItem Header="_Save" Foreground="Black" />
+                    <Separator />
+                    <MenuItem Header="_Exit" Foreground="Black" />
+                </MenuItem>
+                <MenuItem Name="FileName"></MenuItem>
+            </Menu>
+        </DockPanel>
+        
+    </Grid>
+
+</Window>
+
