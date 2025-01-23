@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:PicAxe"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    
-   
+
+
     <Grid Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -21,10 +21,11 @@
 
         <Border Grid.RowSpan="2" Grid.ColumnSpan="3" Background="#2f3040"></Border>
         <Image Grid.Column="1" Grid.Row="1" Name="mainImage" Source="C:\Users\ivani\Pictures\1984.jpg"></Image>
-        <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+        <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="#443653" BorderThickness="1" CornerRadius="2"></Border>
+        <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="1">
             <Menu DockPanel.Dock="Top"  Background="#323232" Foreground="AliceBlue">
                 <MenuItem Header="_File" BorderThickness="0">
-                    <MenuItem Header="_New" Foreground="Black" />
+                    <MenuItem Header="_New" Foreground="Black" Click="New_Click"/>
                     <MenuItem Header="_Open" Click="Open_Click" Foreground="Black"/>
                     <MenuItem Header="_Save" Foreground="Black" />
                     <Separator />
@@ -33,8 +34,7 @@
                 <MenuItem Name="FileName"></MenuItem>
             </Menu>
         </DockPanel>
-        
-    </Grid>
 
+    </Grid>
 </Window>
 

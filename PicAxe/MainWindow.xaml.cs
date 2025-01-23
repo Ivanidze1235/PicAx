@@ -13,6 +13,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Net.Mime.MediaTypeNames;
+using System.Windows.Interop;
+using System.Windows.Controls.Primitives;
 
 namespace PicAxe
 {
@@ -45,6 +48,31 @@ namespace PicAxe
                 FileName.Header = filename;
                 mainImage.Source = new BitmapImage(new Uri(filename));
             }
+        }
+
+        private void New_Click(object sender, RoutedEventArgs e)
+        {
+            PopupWindow popup = new PopupWindow();
+            popup.Owner = this;
+            popup.Show();
+        }
+
+        public BitmapSource DrawFilledRectangle(int x, int y)
+        {
+            Bitmap bmp = new Bitmap(x, y);
+            using (Graphics graph = Graphics.FromImage(bmp))
+            {
+                System.Drawing.Rectangle ImageSize = new System.Drawing.Rectangle(0, 0, x, y);
+                graph.FillRectangle(System.Drawing.Brushes.White, ImageSize);
+            }
+            
+            BitmapSource i = Imaging.CreateBitmapSourceFromHBitmap(
+                               bmp.GetHbitmap(),
+                               IntPtr.Zero,
+                               Int32Rect.Empty,
+                               BitmapSizeOptions.FromEmptyOptions());
+                return i;
+            
         }
     }
 }
