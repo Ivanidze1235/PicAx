@@ -33,6 +33,14 @@ namespace PicAxe
         string filename;
         public BitmapSource bitmapSource;
 
+        private void image_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScaleTransform st = imageScale;
+            
+            double zoom = e.Delta > 0 ? .2 : -.2;
+            st.ScaleX += zoom;
+            st.ScaleY += zoom;
+        }
         private void Open_Click(object sender, RoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
