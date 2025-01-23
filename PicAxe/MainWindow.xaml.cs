@@ -31,6 +31,7 @@ namespace PicAxe
         }
 
         string filename;
+        public BitmapSource bitmapSource;
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
@@ -49,7 +50,8 @@ namespace PicAxe
                 // Open document 
                 filename = dlg.FileName;
                 FileName.Header = filename;
-                mainImage.Source = new BitmapImage(new Uri(filename));
+                bitmapSource = new BitmapImage(new Uri(filename));
+                mainImage.Source = bitmapSource;
             }
         }
 
@@ -80,22 +82,40 @@ namespace PicAxe
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            SaveImageToJPEG(mainImage, "C:\\Users\\ivani\\Pictures\\untitled.jpg");
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".png";
+            dlg.FileName = "untitled.png";
+            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg|GIF Files (*.gif)|*.gif";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                filename = dlg.FileName;
+                ImageToFile(bitmapSource, filename);
+            }
+                
         }
 
-        private void SaveImageToJPEG(System.Windows.Controls.Image ImageToSave, string Location)
+        public static void ImageToFile(BitmapSource image, string filePath)
         {
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)ImageToSave.ActualWidth,
-                                                                           (int)ImageToSave.ActualHeight,
-                                                                           100, 100, PixelFormats.Default);
-            renderTargetBitmap.Render(ImageToSave);
-            JpegBitmapEncoder jpegBitmapEncoder = new JpegBitmapEncoder();
-            jpegBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
-            using (FileStream fileStream = new FileStream(Location, FileMode.Create))
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
-                jpegBitmapEncoder.Save(fileStream);
-                fileStream.Flush();
-                fileStream.Close();
+                try
+                {
+                    BitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(fileStream);
+                }
+                catch
+                {
+                    throw new FileNotFoundException("No source bitmap found.");
+                }
+                
             }
         }
     }
