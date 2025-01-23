@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using static System.Net.Mime.MediaTypeNames;
 using System.Windows.Interop;
 using System.Windows.Controls.Primitives;
+using System.IO;
 
 namespace PicAxe
 {
@@ -28,6 +29,8 @@ namespace PicAxe
         {
             InitializeComponent();
         }
+
+        string filename;
 
         private void Open_Click(object sender, RoutedEventArgs e)
         {
@@ -44,7 +47,7 @@ namespace PicAxe
             if (result == true)
             {
                 // Open document 
-                string filename = dlg.FileName;
+                filename = dlg.FileName;
                 FileName.Header = filename;
                 mainImage.Source = new BitmapImage(new Uri(filename));
             }
@@ -73,6 +76,27 @@ namespace PicAxe
                                BitmapSizeOptions.FromEmptyOptions());
                 return i;
             
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            SaveImageToJPEG(mainImage, "C:\\Users\\ivani\\Pictures\\untitled.jpg");
+        }
+
+        private void SaveImageToJPEG(System.Windows.Controls.Image ImageToSave, string Location)
+        {
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)ImageToSave.ActualWidth,
+                                                                           (int)ImageToSave.ActualHeight,
+                                                                           100, 100, PixelFormats.Default);
+            renderTargetBitmap.Render(ImageToSave);
+            JpegBitmapEncoder jpegBitmapEncoder = new JpegBitmapEncoder();
+            jpegBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+            using (FileStream fileStream = new FileStream(Location, FileMode.Create))
+            {
+                jpegBitmapEncoder.Save(fileStream);
+                fileStream.Flush();
+                fileStream.Close();
+            }
         }
     }
 }
