@@ -104,12 +104,20 @@ namespace PicAxe
             if (result == true)
             {
                 filename = dlg.FileName;
-                ImageToFile(bitmapSource, filename);
+                if (filename == @"*.png")
+                {
+                    ImageToFilePNG(bitmapSource, filename);
+                }
+
+                else if (filename == @"*.jpg")
+                {
+                    ImageToFileJPG(bitmapSource, filename);
+                }
             }
                 
         }
 
-        public static void ImageToFile(BitmapSource image, string filePath)
+        public static void ImageToFilePNG(BitmapSource image, string filePath)
         {
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
@@ -124,6 +132,24 @@ namespace PicAxe
                     throw new FileNotFoundException("No source bitmap found.");
                 }
                 
+            }
+        }
+
+        public static void ImageToFileJPG(BitmapSource image, string filePath)
+        {
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                try
+                {
+                    BitmapEncoder encoder = new JpegBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(fileStream);
+                }
+                catch
+                {
+                    throw new FileNotFoundException("No source bitmap found.");
+                }
+
             }
         }
     }

@@ -25,7 +25,7 @@
                     <TransformGroup>
                         <ScaleTransform ScaleX="1" ScaleY="1" x:Name="imageScale" />
                         <RotateTransform CenterX="0" CenterY="0"  Angle="0" />
-                        <TranslateTransform X="0" Y="0" />
+                        <TranslateTransform X="0" Y="0" x:Name="imageMove" />
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
