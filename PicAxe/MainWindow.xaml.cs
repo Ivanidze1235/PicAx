@@ -47,7 +47,7 @@ namespace PicAxe
 
             // Set filter for file extension and default file extension 
             dlg.DefaultExt = ".jpg";
-            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg|GIF Files (*.gif)|*.gif";
+            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg|GIF Files (*.gif)|*.gif|BMP Files (*.bmp)|*.bmp";
 
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dlg.ShowDialog();
@@ -94,9 +94,9 @@ namespace PicAxe
 
             // Set filter for file extension and default file extension 
             dlg.DefaultExt = ".png";
-            dlg.FileName = "untitled.png";
-            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg|GIF Files (*.gif)|*.gif";
-
+            dlg.FileName = "untitled";
+            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg|GIF Files (*.gif)|*.gif|BMP Files (*.bmp)|*.bmp";
+            dlg.AddExtension = true;
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dlg.ShowDialog();
 
@@ -104,26 +104,41 @@ namespace PicAxe
             if (result == true)
             {
                 filename = dlg.FileName;
-                if (filename == @"*.png")
-                {
-                    ImageToFilePNG(bitmapSource, filename);
-                }
 
-                else if (filename == @"*.jpg")
-                {
-                    ImageToFileJPG(bitmapSource, filename);
-                }
+                ImageToFile(bitmapSource, filename, dlg.DefaultExt);
             }
-                
         }
 
-        public static void ImageToFilePNG(BitmapSource image, string filePath)
+        public static void ImageToFile(BitmapSource image, string filePath, string extention)
         {
             using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
                 try
                 {
-                    BitmapEncoder encoder = new PngBitmapEncoder();
+                    BitmapEncoder encoder;
+                    switch (extention)
+                    {
+                        default:
+                            encoder = new JpegBitmapEncoder();
+                            break;
+
+                        case ("png"):
+                            encoder = new PngBitmapEncoder();
+                            break;
+
+                        case ("bmp"):
+                            encoder = new BmpBitmapEncoder();
+                            break;
+
+                        case ("jpg"):
+                            encoder= new JpegBitmapEncoder();
+                            break;
+
+                        case ("gif"):
+                            encoder= new GifBitmapEncoder();
+                            break;
+                    }
+                    
                     encoder.Frames.Add(BitmapFrame.Create(image));
                     encoder.Save(fileStream);
                 }
@@ -132,24 +147,6 @@ namespace PicAxe
                     throw new FileNotFoundException("No source bitmap found.");
                 }
                 
-            }
-        }
-
-        public static void ImageToFileJPG(BitmapSource image, string filePath)
-        {
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                try
-                {
-                    BitmapEncoder encoder = new JpegBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(image));
-                    encoder.Save(fileStream);
-                }
-                catch
-                {
-                    throw new FileNotFoundException("No source bitmap found.");
-                }
-
             }
         }
     }
