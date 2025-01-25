@@ -196,7 +196,7 @@ namespace PicAxe
         private void Brush_Click(object sender, RoutedEventArgs e)
         {
             mainImage.Cursor = Cursors.Cross;
-            Actions.state = 1;
+            Actions.state = Actions.states.draw;
         }
 
         private System.Windows.Point PositionToPixel(System.Windows.Point position)
@@ -218,7 +218,7 @@ namespace PicAxe
             {
                 default:
                     break;
-                case 1:
+                case Actions.states.draw:
                     var position = Mouse.GetPosition(mainImage);
                     position = PositionToPixel(position);
                     try
@@ -270,6 +270,13 @@ namespace PicAxe
 
     public static class Actions
     {
-        public static int state = 0;
+        //public static int state = 0;
+        public enum states
+        {
+            draw,
+            erase,
+        }
+        
+        public static states state = states.draw;
     }
 }
