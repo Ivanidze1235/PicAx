@@ -38,7 +38,8 @@ namespace PicAxe
         }
 
         string filename;
-        Bitmap bitmap;
+        public static Bitmap bitmap;
+        public static Graphics g;
 
         private void image_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -75,6 +76,7 @@ namespace PicAxe
             PopupWindow popup = new PopupWindow();
             popup.Owner = this;
             popup.Show();
+            g = Graphics.FromImage(bitmap);
         }
 
         public BitmapSource DrawFilledRectangle(int x, int y)
@@ -110,7 +112,7 @@ namespace PicAxe
             if (result == true)
             {
                 filename = dlg.FileName;
-
+                FileName.Header = filename;
                 ImageToFile((BitmapSource)mainImage.Source, filename, dlg.DefaultExt);
             }
         }
@@ -212,38 +214,33 @@ namespace PicAxe
 
         public static extern bool DeleteObject(IntPtr hObject);
 
-        private void Draw(object sender, MouseButtonEventArgs e)
+        private void Draw()
         {
             switch (Actions.state)
             {
                 default:
                     break;
                 case Actions.states.draw:
-                    var position = Mouse.GetPosition(mainImage);
-                    position = PositionToPixel(position);
                     try
                     {
-                        using (Graphics g = Graphics.FromImage(bitmap))
-                        {
-                            // Draw onto the bitmap here
-                            // ....
-                            g.FillRectangle(System.Drawing.Brushes.Red, System.Drawing.Rectangle.FromLTRB(
-                                (int)position.X - 10,
-                                (int)position.Y - 10,
-                                (int)position.X + 10,
-                                (int)position.Y + 10));
-                            g.Dispose();
-                        }
+                             var position = Mouse.GetPosition(mainImage);
+                             position = PositionToPixel(position);
+                             g.FillRectangle(System.Drawing.Brushes.Red, System.Drawing.Rectangle.FromLTRB(
+                                 (int)position.X - 10,
+                                 (int)position.Y - 10,
+                                 (int)position.X + 10,
+                                 (int)position.Y + 10));
+       
                     }
                     catch
                     {
                         MessageBox.Show("Could not draw a square!");
                         throw new Exception("Could not draw a square!");
                     }
-                    
-                    
+
+
                     IntPtr hBitmap = bitmap.GetHbitmap();
-                    
+
                     mainImage.Source = Imaging.CreateBitmapSourceFromHBitmap(
                                                                         hBitmap,
                                                                         IntPtr.Zero,
@@ -259,11 +256,27 @@ namespace PicAxe
                         MessageBox.Show("bitmap handle did not get deleted");
                         throw new InvalidOperationException("bitmap handler not deleted");
                     }
-                    
+
                     break;
             }
         }
-        
+
+        private void mainImage_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                Draw();
+            }
+            
+        }
+
+        private void mainImage_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (bitmap != null)
+            {
+                g = Graphics.FromImage(bitmap);
+            }
+        }
     }
 
 

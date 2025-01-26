@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace PicAxe
         {
             var window = this.Owner as MainWindow;
             window.mainImage.Source = window.DrawFilledRectangle(Convert.ToInt32(widthBox.Text), Convert.ToInt32(heightBox.Text));
+            
             this.Hide();
         }
     }
