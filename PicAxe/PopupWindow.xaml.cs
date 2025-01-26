@@ -28,7 +28,7 @@ namespace PicAxe
         private void New_Image(object sender, RoutedEventArgs e)
         {
             var window = this.Owner as MainWindow;
-            window.mainImage.Source = window.DrawFilledRectangle(Convert.ToInt32(widthBox.Text), Convert.ToInt32(heightBox.Text));
+            window.mainImage.Source = window.DrawEmptyRectangle(Convert.ToInt32(widthBox.Text), Convert.ToInt32(heightBox.Text));
             window.generate();
             this.Hide();
         }

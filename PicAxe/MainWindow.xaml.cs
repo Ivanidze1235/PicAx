@@ -25,6 +25,8 @@ using System.Drawing.Imaging;
 using System.Data.Entity.Design;
 using System.Data.Objects;
 using System.Drawing.Drawing2D;
+using System.Collections;
+using System.Reflection;
 
 namespace PicAxe
 {
@@ -36,6 +38,21 @@ namespace PicAxe
         public MainWindow()
         {
             InitializeComponent();
+
+            TransformGroup group = new TransformGroup();
+
+            ScaleTransform xform = new ScaleTransform();
+            group.Children.Add(xform);
+
+            TranslateTransform tt = new TranslateTransform();
+            group.Children.Add(tt);
+
+            mainImage.RenderTransform = group;
+
+            mainImage.MouseWheel += image_MouseWheel;
+            mainImage.MouseLeftButtonDown += mainImage_LeftButtonDown;
+            mainImage.MouseLeftButtonUp += mainImage_MouseLeftButtonUp;
+            mainImage.MouseMove += mainImage_MouseMove;
         }
 
         string filename;
@@ -45,14 +62,17 @@ namespace PicAxe
         public bool state = false;
 
         System.Windows.Point bufferPoint = new System.Windows.Point();
+        private System.Windows.Point origin;
+        private System.Windows.Point start;
 
         private void image_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            ScaleTransform st = imageScale;
-            
+            TransformGroup transformGroup = (TransformGroup)mainImage.RenderTransform;
+            ScaleTransform transform = (ScaleTransform)transformGroup.Children[0];
+
             double zoom = e.Delta > 0 ? .2 : -.2;
-            st.ScaleX += zoom;
-            st.ScaleY += zoom;
+            transform.ScaleX += zoom;
+            transform.ScaleY += zoom;
         }
         private void Open_Click(object sender, RoutedEventArgs e)
         {
@@ -73,6 +93,7 @@ namespace PicAxe
                 FileName.Header = filename;
                 mainImage.Source = new BitmapImage(new Uri(filename));
                 bitmap = BitmapFromSource((BitmapSource)mainImage.Source);
+                backdrop.Source = DrawFilledRectangle(bitmap.Width, bitmap.Height);
             }
         }
 
@@ -81,29 +102,47 @@ namespace PicAxe
             PopupWindow popup = new PopupWindow();
             popup.Owner = this;
             popup.Show();
-            
         }
         public void generate()
         {
             g = Graphics.FromImage(bitmap);
+            backdrop.Source = DrawFilledRectangle(bitmap.Width, bitmap.Height);
         }
 
         public BitmapSource DrawFilledRectangle(int x, int y)
         {
-            bitmap = new Bitmap(x, y);
-            using (Graphics graph = Graphics.FromImage(bitmap))
+            Bitmap tempBitmap = new Bitmap(x, y);
+            using (Graphics graph = Graphics.FromImage(tempBitmap))
             {
                 System.Drawing.Rectangle ImageSize = new System.Drawing.Rectangle(0, 0, x, y);
                 graph.FillRectangle(System.Drawing.Brushes.White, ImageSize);
             }
             
             BitmapSource i = Imaging.CreateBitmapSourceFromHBitmap(
-                               bitmap.GetHbitmap(),
+                               tempBitmap.GetHbitmap(),
                                IntPtr.Zero,
                                Int32Rect.Empty,
                                BitmapSizeOptions.FromEmptyOptions());
                 return i;
             
+        }
+
+        public BitmapSource DrawEmptyRectangle(int x, int y)
+        {
+            bitmap = new Bitmap(x, y);
+            using (Graphics graph = Graphics.FromImage(bitmap))
+            {
+                System.Drawing.Rectangle ImageSize = new System.Drawing.Rectangle(0, 0, x, y);
+                graph.FillRectangle(System.Drawing.Brushes.Transparent, ImageSize);
+            }
+
+            BitmapSource i = Imaging.CreateBitmapSourceFromHBitmap(
+                               bitmap.GetHbitmap(),
+                               IntPtr.Zero,
+                               Int32Rect.Empty,
+                               BitmapSizeOptions.FromEmptyOptions());
+            return i;
+
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -142,6 +181,7 @@ namespace PicAxe
 
                         case ("png"):
                             encoder = new PngBitmapEncoder();
+                            encoder.Palette = BitmapPalettes.Halftone256Transparent;
                             break;
 
                         case ("bmp"):
@@ -211,6 +251,12 @@ namespace PicAxe
             Actions.state = Actions.states.draw;
         }
 
+        private void Drag_Click(object sender, RoutedEventArgs e)
+        {
+            mainImage.Cursor = Cursors.Hand;
+            Actions.state = Actions.states.drag;
+        }
+
         private System.Windows.Point PositionToPixel(System.Windows.Point position)
         {
             double ratio = mainImage.Source.Height / mainImage.ActualHeight;
@@ -267,22 +313,56 @@ namespace PicAxe
                         }
 
                     }
+                    break;
+                case Actions.states.drag:
+                    if (!mainImage.IsMouseCaptured) return;
 
-
+                    var tt = (TranslateTransform)((TransformGroup)mainImage.RenderTransform).Children.First(tr => tr is TranslateTransform);
+                    Vector v = start - e.GetPosition(border);
+                    tt.X = origin.X - v.X;
+                    tt.Y = origin.Y - v.Y;
                     break;
             }
         }
 
         private void mainImage_LeftButtonDown(object sender, MouseEventArgs e)
         {
-            state = true;
-            bufferPoint = PositionToPixel(e.GetPosition(mainImage));
-            mainImage_MouseMove(sender, e);
+            switch (Actions.state)
+            {
+                case Actions.states.draw:
+                    state = true;
+                    bufferPoint = PositionToPixel(e.GetPosition(mainImage));
+                    mainImage_MouseMove(sender, e);
+                    break;
+                case Actions.states.drag:
+                    mainImage.CaptureMouse();
+                    var tt = (TranslateTransform)((TransformGroup)mainImage.RenderTransform).Children.First(tr => tr is TranslateTransform);
+                    start = e.GetPosition(border);
+                    origin = new System.Windows.Point(tt.X, tt.Y);
+                    break;
+                case Actions.states.erase:
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void mainImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            state = false;
+            switch (Actions.state)
+            {
+                case Actions.states.draw:
+                    state = false;
+                    break;
+                case Actions.states.drag:
+                    mainImage.ReleaseMouseCapture();
+                    break;
+                case Actions.states.erase:
+                    break;
+                default:
+                    break;
+            }
+            
         }
 
         private void mainImage_MouseEnter(object sender, MouseEventArgs e)
@@ -299,6 +379,8 @@ namespace PicAxe
         {
             g = null;
         }
+
+        
     }
 
     public static class Actions
@@ -306,10 +388,12 @@ namespace PicAxe
         //public static int state = 0;
         public enum states
         {
+            none,
             draw,
+            drag,
             erase,
         }
         
-        public static states state = states.draw;
+        public static states state = states.none;
     }
 }
