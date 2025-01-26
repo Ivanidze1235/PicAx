@@ -24,6 +24,7 @@ using System.Management.Instrumentation;
 using System.Drawing.Imaging;
 using System.Data.Entity.Design;
 using System.Data.Objects;
+using System.Drawing.Drawing2D;
 
 namespace PicAxe
 {
@@ -40,6 +41,10 @@ namespace PicAxe
         string filename;
         public static Bitmap bitmap;
         public static Graphics g;
+        
+        public bool state = false;
+
+        System.Windows.Point bufferPoint = new System.Windows.Point();
 
         private void image_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -76,11 +81,16 @@ namespace PicAxe
             PopupWindow popup = new PopupWindow();
             popup.Owner = this;
             popup.Show();
+            
+        }
+        public void generate()
+        {
             g = Graphics.FromImage(bitmap);
         }
 
         public BitmapSource DrawFilledRectangle(int x, int y)
         {
+            bitmap = new Bitmap(x, y);
             using (Graphics graph = Graphics.FromImage(bitmap))
             {
                 System.Drawing.Rectangle ImageSize = new System.Drawing.Rectangle(0, 0, x, y);
@@ -214,60 +224,65 @@ namespace PicAxe
 
         public static extern bool DeleteObject(IntPtr hObject);
 
-        private void Draw()
+        private void mainImage_MouseMove(object sender, MouseEventArgs e)
         {
             switch (Actions.state)
             {
                 default:
                     break;
                 case Actions.states.draw:
-                    try
+                    if (state)
                     {
-                             var position = Mouse.GetPosition(mainImage);
-                             position = PositionToPixel(position);
-                             g.FillRectangle(System.Drawing.Brushes.Red, System.Drawing.Rectangle.FromLTRB(
-                                 (int)position.X - 10,
-                                 (int)position.Y - 10,
-                                 (int)position.X + 10,
-                                 (int)position.Y + 10));
-       
-                    }
-                    catch
-                    {
-                        MessageBox.Show("Could not draw a square!");
-                        throw new Exception("Could not draw a square!");
+                        try
+                        {
+                            var position = Mouse.GetPosition(mainImage);
+                            position = PositionToPixel(position);
+                            System.Drawing.Pen pen = new System.Drawing.Pen(System.Drawing.Color.Black, 14);
+
+                            pen.EndCap = LineCap.Round;
+                            pen.StartCap = LineCap.Round;
+
+                            g.DrawLine(pen, (float)position.X, (float)position.Y, (float)bufferPoint.X, (float)bufferPoint.Y);
+                            bufferPoint = position;
+                        }
+                        catch
+                        {
+                            MessageBox.Show("Could not draw a square!");
+                            throw new Exception("Could not draw a square!");
+                        }
+                        try
+                        {
+                            IntPtr hBitmap = bitmap.GetHbitmap();
+                            mainImage.Source = Imaging.CreateBitmapSourceFromHBitmap(
+                                                                            hBitmap,
+                                                                            IntPtr.Zero,
+                                                                            Int32Rect.Empty,
+                                                                            BitmapSizeOptions.FromEmptyOptions());
+                            DeleteObject(hBitmap);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("couldn't update displayed image.");
+                            throw new Exception("couldn't update displayed image.");
+                        }
+
                     }
 
-
-                    IntPtr hBitmap = bitmap.GetHbitmap();
-
-                    mainImage.Source = Imaging.CreateBitmapSourceFromHBitmap(
-                                                                        hBitmap,
-                                                                        IntPtr.Zero,
-                                                                        Int32Rect.Empty,
-                                                                        BitmapSizeOptions.FromEmptyOptions());
-
-                    try
-                    {
-                        DeleteObject(hBitmap);
-                    }
-                    catch
-                    {
-                        MessageBox.Show("bitmap handle did not get deleted");
-                        throw new InvalidOperationException("bitmap handler not deleted");
-                    }
 
                     break;
             }
         }
 
-        private void mainImage_MouseMove(object sender, MouseEventArgs e)
+        private void mainImage_LeftButtonDown(object sender, MouseEventArgs e)
         {
-            if (Mouse.LeftButton == MouseButtonState.Pressed)
-            {
-                Draw();
-            }
-            
+            state = true;
+            bufferPoint = PositionToPixel(e.GetPosition(mainImage));
+            mainImage_MouseMove(sender, e);
+        }
+
+        private void mainImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            state = false;
         }
 
         private void mainImage_MouseEnter(object sender, MouseEventArgs e)
@@ -275,11 +290,16 @@ namespace PicAxe
             if (bitmap != null)
             {
                 g = Graphics.FromImage(bitmap);
+                
+                
             }
         }
+
+        private void mainImage_MouseLeave(object sender, MouseEventArgs e)
+        {
+            g = null;
+        }
     }
-
-
 
     public static class Actions
     {
