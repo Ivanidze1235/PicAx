@@ -73,6 +73,7 @@ namespace PicAxe
             double zoom = e.Delta > 0 ? .2 : -.2;
             transform.ScaleX += zoom;
             transform.ScaleY += zoom;
+            
         }
         private void Open_Click(object sender, RoutedEventArgs e)
         {
