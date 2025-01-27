@@ -181,7 +181,6 @@ namespace PicAxe
 
                         case ("png"):
                             encoder = new PngBitmapEncoder();
-                            encoder.Palette = BitmapPalettes.Halftone256Transparent;
                             break;
 
                         case ("bmp"):
