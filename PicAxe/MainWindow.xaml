@@ -47,6 +47,9 @@
             </Menu>
         </DockPanel>
         <WrapPanel Grid.Row="1" Grid.Column="0">
+            <Button Background="Transparent" Click="Revert_Click">
+                <Image Source="icons\gdrive.jpg" Margin="2"></Image>
+            </Button>
             <Button Background="Transparent" Click="Drag_Click">
                 <Image Source="icons\hand.png" Margin="2"></Image>
             </Button>

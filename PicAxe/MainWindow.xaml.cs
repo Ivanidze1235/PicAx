@@ -57,9 +57,10 @@ namespace PicAxe
 
         string filename;
         public static Bitmap bitmap;
+        public static Stack<BitmapSource> tempSource = new Stack<BitmapSource>();
         public static Graphics g;
         
-        public bool state = false;
+        public bool drawState = false;
 
         System.Windows.Point bufferPoint = new System.Windows.Point();
         private System.Windows.Point origin;
@@ -227,20 +228,20 @@ namespace PicAxe
             return bitmap;
         }
 
-        public static BitmapSource ConvertToSource(System.Drawing.Bitmap bitmap)
+        public static BitmapSource ConvertToSource(System.Drawing.Bitmap bitmap_temp)
         {
-            var bitmapData = bitmap.LockBits(
-                new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                System.Drawing.Imaging.ImageLockMode.ReadOnly, bitmap.PixelFormat);
+            var bitmapData = bitmap_temp.LockBits(
+                new System.Drawing.Rectangle(0, 0, bitmap_temp.Width, bitmap_temp.Height),
+                System.Drawing.Imaging.ImageLockMode.ReadOnly, bitmap_temp.PixelFormat);
 
             var bitmapSource = BitmapSource.Create(
                 bitmapData.Width, bitmapData.Height,
-                bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                bitmap_temp.HorizontalResolution, bitmap_temp.VerticalResolution,
                 PixelFormats.Bgr24, null,
                 bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
 
-            bitmap.UnlockBits(bitmapData);
-            bitmap = null;
+            bitmap_temp.UnlockBits(bitmapData);
+            bitmap_temp = null;
 
             return bitmapSource;
         }
@@ -257,6 +258,14 @@ namespace PicAxe
             Actions.state = Actions.states.drag;
         }
 
+        private void Revert_Click(object sender, RoutedEventArgs e)
+        {
+            if (tempSource != null)
+            {
+                mainImage.Source = tempSource.Pop();
+                bitmap = BitmapFromSource((BitmapSource)mainImage.Source);
+            }
+        }
         private System.Windows.Point PositionToPixel(System.Windows.Point position)
         {
             double ratio = mainImage.Source.Height / mainImage.ActualHeight;
@@ -277,7 +286,7 @@ namespace PicAxe
                 default:
                     break;
                 case Actions.states.draw:
-                    if (state)
+                    if (drawState)
                     {
                         try
                         {
@@ -330,7 +339,7 @@ namespace PicAxe
             switch (Actions.state)
             {
                 case Actions.states.draw:
-                    state = true;
+                    drawState = true;
                     bufferPoint = PositionToPixel(e.GetPosition(mainImage));
                     mainImage_MouseMove(sender, e);
                     break;
@@ -345,6 +354,8 @@ namespace PicAxe
                 default:
                     break;
             }
+
+            tempSource.Push((BitmapSource)mainImage.Source);
         }
 
         private void mainImage_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -352,7 +363,7 @@ namespace PicAxe
             switch (Actions.state)
             {
                 case Actions.states.draw:
-                    state = false;
+                    drawState = false;
                     break;
                 case Actions.states.drag:
                     mainImage.ReleaseMouseCapture();
@@ -370,7 +381,6 @@ namespace PicAxe
             if (bitmap != null)
             {
                 g = Graphics.FromImage(bitmap);
-                
                 
             }
         }
