@@ -36,6 +36,7 @@
         <Border Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="#443653" BorderThickness="1" CornerRadius="2"></Border>
         <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="1">
             <Menu DockPanel.Dock="Top"  Background="#323232" Foreground="AliceBlue">
+
                 <MenuItem Header="_File" BorderThickness="0">
                     <MenuItem Header="_New" Foreground="Black" Click="New_Click"/>
                     <MenuItem Header="_Open" Click="Open_Click" Foreground="Black"/>
@@ -43,12 +44,16 @@
                     <Separator />
                     <MenuItem Header="_Exit" Foreground="Black" />
                 </MenuItem>
+                <MenuItem Header="brush">
+                    <Slider Name="brushSize" Width="100" Minimum="1" Maximum="100" Value="14" TickFrequency="1" TickPlacement="BottomRight" ValueChanged="brushSize_ValueChanged"/>
+                </MenuItem>
                 <MenuItem Name="FileName"></MenuItem>
+                
             </Menu>
         </DockPanel>
         <WrapPanel Grid.Row="1" Grid.Column="0">
             <Button Background="Transparent" Click="Revert_Click">
-                <Image Source="icons\gdrive.jpg" Margin="2"></Image>
+                <Image Source="icons\revert.png" Margin="2"></Image>
             </Button>
             <Button Background="Transparent" Click="Drag_Click">
                 <Image Source="icons\hand.png" Margin="2"></Image>

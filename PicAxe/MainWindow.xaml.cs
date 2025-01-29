@@ -292,12 +292,8 @@ namespace PicAxe
                         {
                             var position = Mouse.GetPosition(mainImage);
                             position = PositionToPixel(position);
-                            System.Drawing.Pen pen = new System.Drawing.Pen(System.Drawing.Color.Black, 14);
 
-                            pen.EndCap = LineCap.Round;
-                            pen.StartCap = LineCap.Round;
-
-                            g.DrawLine(pen, (float)position.X, (float)position.Y, (float)bufferPoint.X, (float)bufferPoint.Y);
+                            g.DrawLine(BrushDef.pen, (float)position.X, (float)position.Y, (float)bufferPoint.X, (float)bufferPoint.Y);
                             bufferPoint = position;
                         }
                         catch
@@ -390,7 +386,10 @@ namespace PicAxe
             g = null;
         }
 
-        
+        private void brushSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            BrushDef.pen.Width = (float)brushSize.Value;
+        }
     }
 
     public static class Actions
@@ -406,4 +405,17 @@ namespace PicAxe
         
         public static states state = states.none;
     }
+
+    public static class  BrushDef
+    {
+        public static System.Drawing.Pen pen = new System.Drawing.Pen(System.Drawing.Color.Black, 14);
+
+        static BrushDef()
+        {
+            pen.EndCap = LineCap.Round;
+            pen.StartCap = LineCap.Round;
+        }
+        
+    }
+    
 }

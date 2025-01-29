@@ -117,5 +117,8 @@
   <ItemGroup>
     <Resource Include="icons\hand.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icons\revert.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
