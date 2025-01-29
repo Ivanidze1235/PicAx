@@ -45,7 +45,8 @@
                     <MenuItem Header="_Exit" Foreground="Black" />
                 </MenuItem>
                 <MenuItem Header="brush">
-                    <Slider Name="brushSize" Width="100" Minimum="1" Maximum="100" Value="14" TickFrequency="1" TickPlacement="BottomRight" ValueChanged="brushSize_ValueChanged"/>
+                    <Label Content="Brush Size" Foreground="Black" />
+                    <Slider Name="brushSize" AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" Width="100" Minimum="1" Maximum="100" Value="14" TickFrequency="1" TickPlacement="BottomRight" ValueChanged="brushSize_ValueChanged"/>
                 </MenuItem>
                 <MenuItem Name="FileName"></MenuItem>
                 

@@ -262,8 +262,11 @@ namespace PicAxe
         {
             if (tempSource != null)
             {
-                mainImage.Source = tempSource.Pop();
-                bitmap = BitmapFromSource((BitmapSource)mainImage.Source);
+                if (tempSource.Count > 0)
+                {
+                    mainImage.Source = tempSource.Pop();
+                    bitmap = BitmapFromSource((BitmapSource)mainImage.Source);
+                }
             }
         }
         private System.Windows.Point PositionToPixel(System.Windows.Point position)
